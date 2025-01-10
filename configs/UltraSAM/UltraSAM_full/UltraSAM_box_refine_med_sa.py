@@ -1,0 +1,55 @@
+_base_ = ['../../_base_/datasets/sam_dataset_bbox_prompt.py', '../../_base_/models/med_sa.py']
+
+data_root = './UltraSAM_DATA/UltraSAM/'
+# distributed=True
+# log_file='tmp.log'
+# log_level='DEBUG'
+
+# model_wrapper_cfg = dict(
+#     type='MMDistributedDataParallel',
+#     find_unused_parameters=True,
+#     detect_anomalous_params=True
+# )
+
+train_dataloader = dict(
+    batch_size=8,
+    # batch_size=1,
+    dataset=dict(
+        data_root=data_root,
+        data_prefix=dict(img=''),
+        ann_file='train.agnostic.noSmall.coco.json',
+    ),
+)
+
+val_dataloader = dict(
+    dataset=dict(
+        data_root=data_root,
+        data_prefix=dict(img=''),
+        ann_file='val.agnostic.noSmall.coco.json',
+    ),
+)
+
+test_dataloader = dict(
+    dataset=dict(
+        data_root=data_root,
+        data_prefix=dict(img='MMOTU_2d/images'),
+        ann_file='MMOTU_2d/annotations/test.agnostic.MMOTU_2d__coco.json',
+    ),
+)
+
+# orig_val_evaluator = _base_.val_evaluator
+# orig_val_evaluator[0]['ann_file'] = '{}/test.agnostic.noSmall.coco.json'.format(data_root)
+# val_evaluator = orig_val_evaluator
+
+# orig_test_evaluator = _base_.test_evaluator
+# orig_test_evaluator[0]['ann_file'] = '{}/MMOTU_2d/annotations/test.agnostic.MMOTU_2d__coco.json'.format(data_root)
+# test_evaluator = orig_test_evaluator
+
+
+orig_val_evaluator = _base_.val_evaluator
+orig_val_evaluator['ann_file'] = '{}/test.agnostic.noSmall.coco.json'.format(data_root)
+val_evaluator = orig_val_evaluator
+
+orig_test_evaluator = _base_.test_evaluator
+orig_test_evaluator['ann_file'] = '{}/MMOTU_2d/annotations/test.agnostic.MMOTU_2d__coco.json'.format(data_root)
+test_evaluator = orig_test_evaluator
