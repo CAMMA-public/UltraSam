@@ -6,10 +6,71 @@ _Adrien Meyer, Aditya Murali, Didier Mutter, Nicolas Padoy_
 
 ![UltraSam](./assets/UltraSam_main.png)
 
-## What's New
+## Usage
 
-**06/01/2025**: Added a detailed table with links to individual datasets that constitute our compiled US-43d.
+<details>
+<summary>Click to expand Install</summary>
+You may need to install a specific version of PyTorch, depending on your hardware.
 
+Create a conda environment and activate it.
+```bash
+conda create --name UltraSam python=3.8 -y
+conda activate UltraSam
+```
+
+Install the OpenMMLab suite and other dependencies
+```bash
+pip install -U openmim
+mim install mmengine
+mim install "mmcv>=2.0.0"
+mim install mmdet
+mim install mmpretrain
+```
+
+If you wish to process the datasets;
+```bash
+pip install SimpleITK
+pip install scikit-image
+pip install scipy
+```
+
+Pre-trained UltraSam model checkpoint is accessible [at this link](https://s3.unistra.fr/camma_public/github/ultrasam/UltraSam.pth).
+
+To train / test, you will need a coco.json annotation file, and create a symbolik link to it, or modify the config files to point to your annotation file.
+
+To train from scratch, you can use the code in ```weights``` to download and convert SAM, MEDSAM and adapters weights.
+
+In local, inside UltraSam repo;
+```bash
+export PYTHONPATH=$PYTHONPATH:.
+
+mim train mmdet configs/UltraSAM/UltraSAM_full/UltraSAM_point_refine.py --gpus 4 --launcher pytorch --work-dir ./work_dirs/UltraSam
+mim test mmdet configs/UltraSAM/UltraSAM_full/UltraSAM_point_refine.py --checkpoint ./work_dirs/UltraSam/iter_30000.pth
+mim test mmdet configs/UltraSAM/UltraSAM_full/UltraSAM_box_refine.py --checkpoint ./work_dirs/UltraSam/iter_30000.pth
+
+
+mim train mmpretrain configs/UltraSAM/UltraSAM_full/downstream/classification/BUSBRA/resnet50.py \
+    --work-dir ./work_dirs/classification/BUSBRA/resnet
+mim train mmpretrain configs/UltraSAM/UltraSAM_full/downstream/classification/BUSBRA/MedSAM.py \
+    --work-dir ./work_dirs/classification/BUSBRA/MedSam
+mim train mmpretrain configs/UltraSAM/UltraSAM_full/downstream/classification/BUSBRA/SAM.py \
+    --work-dir ./work_dirs/classification/BUSBRA/Sam
+mim train mmpretrain configs/UltraSAM/UltraSAM_full/downstream/classification/BUSBRA/UltraSam.py \
+    --work-dir ./work_dirs/classification/BUSBRA/UltraSam
+mim train mmpretrain configs/UltraSAM/UltraSAM_full/downstream/classification/BUSBRA/ViT.py \
+    --work-dir ./work_dirs/classification/BUSBRA/ViT
+
+mim train mmdet configs/UltraSAM/UltraSAM_full/downstream/segmentation/BUSBRA/resnet.py \
+    --work-dir ./work_dirs/segmentation/BUSBRA/resnet
+mim train mmdet configs/UltraSAM/UltraSAM_full/downstream/segmentation/BUSBRA/UltraSam.py \
+    --work-dir ./work_dirs/segmentation/BUSBRA/UltraSam_3000
+mim train mmdet configs/UltraSAM/UltraSAM_full/downstream/segmentation/BUSBRA/SAM.py \
+    --work-dir ./work_dirs/segmentation/BUSBRA/SAM
+mim train mmdet configs/UltraSAM/UltraSAM_full/downstream/segmentation/BUSBRA/MedSAM.py \
+    --work-dir ./work_dirs/segmentation/BUSBRA/MedSAM
+```
+
+</details>
 
 ## US-43d
 
@@ -64,13 +125,25 @@ Ultrasound imaging presents a substantial domain gap compared to other medical i
 | UPBD                  | [HomePage](https://ubpd.worldwidetracing.com:9443/)                                                                |
 | US nerve Segmentation | [kaggle](https://www.kaggle.com/c/ultrasound-nerve-segmentation/data)                                              |
 
+
+Once you downloaded the datasets:
+Run each converter in ```datasets/datasets```
+
+```bash
+# run coco converters
+
+# then preprocessing
+python datasets/tools/merge_subdir_coco.py
+python datasets/tools/split_coco.py
+python datasets/tools/create_agnostic_coco.py path_to_datas_root --mode train
+python datasets/tools/create_agnostic_coco.py path_to_datas_root --mode val
+python datasets/tools/create_agnostic_coco.py path_to_datas_root --mode test
+python datasets/tools/merge_agnostic_coco.py path_to_datas_root path_to_datas_root/train.agnostic.noSmall.coco.json --mode train
+python datasets/tools/merge_agnostic_coco.py path_to_datas_root path_to_datas_root/val.agnostic.noSmall.coco.json --mode val
+python datasets/tools/merge_agnostic_coco.py path_to_datas_root path_to_datas_root/test.agnostic.noSmall.coco.json --mode test
+```
+
 </details>
-
-🚨  **Disclaimer** :
-
-The code repository is currently private. The full code will be made publicly available upon acceptance of the associated publication. For now, only the pre-trained model checkpoint is accessible [at this link](https://s3.unistra.fr/camma_public/github/ultrasam/UltraSam.pth).
-
-Stay tuned for updates!
 
 ## References
 
