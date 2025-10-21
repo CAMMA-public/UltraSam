@@ -1,10 +1,56 @@
 # **UltraSam: A Foundation Model for Ultrasound using Large Open-Access Segmentation Datasets**
 
-_Adrien Meyer, Aditya Murali, Didier Mutter, Nicolas Padoy_
+_Adrien Meyer, Aditya Murali, Farahdiba Zarin, Didier Mutter, Nicolas Padoy_
 
-[![arXiv](https://img.shields.io/badge/arxiv-2307.15220-red)](https://arxiv.org/pdf/2411.16222)
+[![arXiv](https://img.shields.io/badge/arxiv-2307.15220-red)](https://arxiv.org/pdf/2411.16222) [![IJCARS](https://img.shields.io/badge/IJCARS-paper-blue)](https://link.springer.com/article/10.1007/s11548-025-03517-8)
+
 
 ![UltraSam](./assets/UltraSam_main.png)
+
+
+## Minimal working example
+<details>
+<summary>Click to expand Install</summary>
+This example guide you to download and use UltraSam in inference mode in a sample dataset.
+The sample dataset, coco-based, is in "./sample_dataset" (using MMOTU2D samples).
+
+Clone the repo
+```bash
+git clone https://github.com/CAMMA-public/UltraSam
+cd UltraSam
+```
+
+Create a conda environment and activate it. (Tested with cuda-11.8 & gcc-12)
+```bash
+conda create --name UltraSam python=3.8 -y
+conda activate UltraSam
+```
+
+Install the OpenMMLab suite and other dependencies
+```bash
+pip install torch==2.0.0 torchvision==0.15.1 torchaudio==2.0.1 --index-url https://download.pytorch.org/whl/cu118
+pip install -U openmim
+mim install mmengine
+mim install "mmcv==2.1.0"
+mim install mmdet
+mim install mmpretrain
+pip install tensorboard
+```
+
+Download UltraSam ckpt
+```bash
+wget -O ./UltraSam.pth "https://s3.unistra.fr/camma_public/github/ultrasam/UltraSam.pth"
+export PYTHONPATH=\$PYTHONPATH:.
+```
+
+```bash
+mim test mmdet configs/UltraSAM/UltraSAM_full/UltraSAM_box_refine.py --checkpoint UltraSam.pth --cfg-options test_dataloader.dataset.data_root="sample_dataset" test_dataloader.dataset.ann_file="sample_coco_MMOTU2D.json" test_dataloader.dataset.data_prefix.img="sample_images" test_evaluator.ann_file="sample_dataset/sample_coco_MMOTU2D.json"  --work-dir ./work_dir/example --show-dir ./show_dir
+```
+
+It will run inference on the specified sample dataset, modified inline from the base config. Predicted mask are visible in the show-dir. That is it!
+
+</details>
+
 
 ## Usage
 
@@ -150,11 +196,13 @@ python datasets/tools/merge_agnostic_coco.py path_to_datas_root path_to_datas_ro
 If you find our work helpful for your research, please consider citing us using the following BibTeX entry:
 
 ```bibtex
-@article{meyer2024ultrasam,
-  title={UltraSam: A Foundation Model for Ultrasound using Large Open-Access Segmentation Datasets},
-  author={Meyer, Adrien and Murali, Aditya and Mutter, Didier and Padoy, Nicolas},
-  journal={arXiv preprint arXiv:2411.16222},
-  year={2024}
+@article{meyer2025ultrasam,
+  title={Ultrasam: a foundation model for ultrasound using large open-access segmentation datasets},
+  author={Meyer, Adrien and Murali, Aditya and Zarin, Farahdiba and Mutter, Didier and Padoy, Nicolas},
+  journal={International Journal of Computer Assisted Radiology and Surgery},
+  pages={1--10},
+  year={2025},
+  publisher={Springer}
 }
 ```
 
