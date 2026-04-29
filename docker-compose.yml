@@ -1,0 +1,23 @@
+version: '3.8'
+
+services:
+  ultrasam:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: ultrasam-gpu
+    runtime: nvidia
+    environment:
+      - NVIDIA_VISIBLE_DEVICES=all
+      - NVIDIA_DRIVER_CAPABILITIES=compute,utility
+      - CUDA_VISIBLE_DEVICES=0,1  # Adjust based on your GPU setup
+    volumes:
+      - .:/workspace/UltraSam
+      - ./work_dir:/workspace/UltraSam/work_dir
+      - ./show_dir:/workspace/UltraSam/show_dir
+      - ./sample_dataset:/workspace/UltraSam/sample_dataset
+    working_dir: /workspace/UltraSam
+    stdin_open: true
+    tty: true
+    shm_size: 8gb  # Increase shared memory for multi-processing
+    command: /bin/bash

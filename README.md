@@ -12,7 +12,7 @@ _Adrien Meyer, Aditya Murali, Farahdiba Zarin, Didier Mutter, Nicolas Padoy_
 ## Minimal working example
 <details>
 <summary>Click to expand Install</summary>
-This example guide you to download and use UltraSam in inference mode in a sample dataset.
+This example guides you to download and use UltraSam in inference mode in a sample dataset.
 The sample dataset, coco-based, is in "./sample_dataset" (using MMOTU2D samples).
 
 Clone the repo
@@ -52,6 +52,64 @@ It will run inference on the specified sample dataset, modified inline from the 
 
 </details>
 
+## Docker Alternative
+
+<details>
+<summary>Click to expand Docker setup</summary>
+
+Docker provides the simplest way to run UltraSam with all dependencies pre-configured.
+
+### Prerequisites
+- Docker Engine with GPU support
+- NVIDIA Container Toolkit for GPU access
+- NVIDIA drivers compatible with CUDA 11.7
+
+### Quick Docker Setup
+
+1. **Clone and build:**
+```bash
+git clone https://github.com/CAMMA-public/UltraSam
+cd UltraSam
+docker build -t ultrasam:latest .
+```
+
+2. **Run sample inference:**
+
+To lauch the docker
+
+```bash
+docker run --rm --gpus all -it -v $(pwd):/workspace/UltraSam ultrasam:latest bash
+```
+
+Run a sample test script inside the container:
+
+```bash
+python visual_inference.py
+```
+
+To run a sample inference test using MMDet directly from host:
+
+```bash
+docker run --rm --gpus all -v $(pwd):/workspace/UltraSam \
+    ultrasam:latest bash -c "
+    cd /workspace/UltraSam && \
+    mim test mmdet configs/UltraSAM/UltraSAM_full/UltraSAM_box_refine.py \
+        --checkpoint UltraSam.pth \
+        --cfg-options test_dataloader.dataset.data_root='sample_dataset' \
+                     test_dataloader.dataset.ann_file='sample_coco_MMOTU2D.json' \
+                     test_dataloader.dataset.data_prefix.img='sample_images' \
+                     test_evaluator.ann_file='sample_dataset/sample_coco_MMOTU2D.json' \
+        --work-dir ./work_dir/example \
+        --show-dir ./show_dir"
+```
+
+**Docker Features:**
+- PyTorch 2.0.0 with CUDA 11.7 support
+- Pre-compiled MMCV, MMDetection, and MMPretrain
+- All dependencies with compatible versions (NumPy 1.26.4 enforced for tensor compatibility)
+- Ready-to-use environment with PYTHONPATH configured
+
+</details>
 
 ## Usage
 
@@ -83,7 +141,7 @@ pip install scipy
 
 Pre-trained UltraSam model checkpoint is accessible [at this link](https://s3.unistra.fr/camma_public/github/ultrasam/UltraSam.pth).
 
-To train / test, you will need a coco.json annotation file, and create a symbolik link to it, or modify the config files to point to your annotation file.
+To train / test, you will need a coco.json annotation file, and create a symbolic link to it, or modify the config files to point to your annotation file.
 
 To train from scratch, you can use the code in ```weights``` to download and convert SAM, MEDSAM and adapters weights.
 
